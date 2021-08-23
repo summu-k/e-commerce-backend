@@ -14,9 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const app = express_1.default();
-// import pool from './db';
+const cors_1 = __importDefault(require("cors"));
 const pool = require('./db');
+const PORT = process.env.PORT || 3005;
+//middleware
+app.use(cors_1.default());
 app.use(express_1.default.json());
+if (process.env.NODE_ENV === 'production') {
+}
 //GET api get all products
 app.get('/products', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -49,6 +54,6 @@ app.put('/products/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
         console.error(error);
     }
 }));
-app.listen(3005, () => {
-    console.log('server running on 3005 ');
+app.listen(PORT, () => {
+    console.log(`server running on ${PORT} `);
 });

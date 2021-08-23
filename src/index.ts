@@ -2,15 +2,13 @@ import express, { json } from 'express';
 const app = express();
 import cors from 'cors';
 const pool = require('./db');
-const PORT = process.env.PORT || 3500;
+const PORT = process.env.PORT || 3005;
 
 //middleware
 app.use(cors());
 app.use(express.json());
 
-
-if(process.env.NODE_ENV === 'production'){
-  
+if (process.env.NODE_ENV === 'production') {
 }
 
 //GET api get all products
