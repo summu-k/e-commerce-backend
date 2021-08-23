@@ -1,12 +1,17 @@
 import express, { json } from 'express';
 const app = express();
 import cors from 'cors';
-// import pool from './db';
 const pool = require('./db');
+const PORT = process.env.PORT || 3500;
 
 //middleware
 app.use(cors());
 app.use(express.json());
+
+
+if(process.env.NODE_ENV === 'production'){
+  
+}
 
 //GET api get all products
 app.get('/products', async (req, res) => {
@@ -59,6 +64,6 @@ app.put('/products/:id', async (req: requestProps, res) => {
   }
 });
 
-app.listen(3005, () => {
-  console.log('server running on 3005 ');
+app.listen(PORT, () => {
+  console.log(`server running on ${PORT} `);
 });
