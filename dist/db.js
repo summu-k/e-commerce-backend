@@ -26,16 +26,4 @@ const pool = (() => {
         });
     }
 })();
-// const pool = new Pool({
-//   connectionString:
-//     process.env.NODE_ENV === 'production' ? prodConfig : devConfig,
-//   ssl: process.env.DATABASE_URL ? true : false,
-// });
 module.exports = pool;
-// const pool = new Pool({
-//   connectionString:
-//     process.env.NODE_ENV === 'production' ? prodConfig : devConfig,
-//   ssl: {
-//     rejectUnauthorized: false,
-//   },
-// });
