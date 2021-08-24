@@ -20,12 +20,10 @@ const PORT = process.env.PORT || 3005;
 //middleware
 app.use(cors_1.default());
 app.use(express_1.default.json());
-if (process.env.NODE_ENV === 'production') {
-}
 //GET api get all products
 app.get('/products', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const getAllProducts = yield pool.query('SELECT * FROM products');
+        const getAllProducts = yield pool.query('SELECT * FROM product_data');
         res.json(getAllProducts.rows);
     }
     catch (error) {

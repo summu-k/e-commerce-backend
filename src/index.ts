@@ -8,13 +8,10 @@ const PORT = process.env.PORT || 3005;
 app.use(cors());
 app.use(express.json());
 
-if (process.env.NODE_ENV === 'production') {
-}
-
 //GET api get all products
 app.get('/products', async (req, res) => {
   try {
-    const getAllProducts = await pool.query('SELECT * FROM products');
+    const getAllProducts = await pool.query('SELECT * FROM product_data');
     res.json(getAllProducts.rows);
   } catch (error) {
     console.error(error);
