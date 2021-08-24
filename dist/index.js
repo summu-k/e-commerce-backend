@@ -18,8 +18,28 @@ const cors_1 = __importDefault(require("cors"));
 const pool = require('./db');
 const PORT = process.env.PORT || 3005;
 //middleware
-app.use(cors_1.default());
+const corsOptions = {
+    origin: 'http://localhost:3000',
+    credentials: true,
+    optionSuccessStatus: 200,
+};
+app.use(cors_1.default(corsOptions));
 app.use(express_1.default.json());
+app.get('/products/brands/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let resultObject = { info: {}, results: [] };
+    try {
+        const { brand, limit, offset } = req.query;
+        const products = yield pool.query('select *, count(*) OVER() AS total_count from product_data WHERE brand=$1 limit $2 offset $3', [brand, limit, offset]);
+        resultObject.info = {
+            count: products.rows[0].total_count,
+        };
+        resultObject.results = products.rows;
+        res.json(resultObject);
+    }
+    catch (error) {
+        console.error(error);
+    }
+}));
 app.get('/products/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
@@ -41,7 +61,7 @@ app.get('/products', (req, res) => __awaiter(void 0, void 0, void 0, function* (
         offset = (+page - 1) * 20;
     }
     try {
-        const getAllProducts = yield pool.query('select *, count(*) OVER() AS total_count FROM product_data order by id limit $1 offset $2', [20, offset]);
+        const getAllProducts = yield pool.query('select *, count(*) OVER() AS total_count from product_data order by id limit $1 offset $2', [20, offset]);
         if (page && +page === 1) {
             next = `/products?page=${+page + 1}`;
         }

@@ -5,7 +5,15 @@ const pool = require('./db');
 const PORT = process.env.PORT || 3005;
 
 //middleware
-app.use(cors());
+const corsOptions = {
+  origin:
+    process.env.NODE_ENV !== 'production'
+      ? 'http://localhost:3000'
+      : 'https://e-commerce-backend-express.herokuapp.com',
+  credentials: true, //access-control-allow-credentials:true
+  optionSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 interface responseProps {
@@ -17,6 +25,25 @@ interface responseProps {
   };
   results: Array<any>;
 }
+
+app.get('/products/brands/', async (req, res) => {
+  let resultObject: responseProps = { info: {}, results: [] };
+
+  try {
+    const { brand, limit, offset } = req.query;
+    const products = await pool.query(
+      'select *, count(*) OVER() AS total_count from product_data WHERE brand=$1 limit $2 offset $3',
+      [brand, limit, offset]
+    );
+    resultObject.info = {
+      count: products.rows[0].total_count,
+    };
+    resultObject.results = products.rows;
+    res.json(resultObject);
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 app.get('/products/:id', async (req: requestProps, res) => {
   try {
@@ -43,7 +70,7 @@ app.get('/products', async (req, res) => {
   }
   try {
     const getAllProducts = await pool.query(
-      'select *, count(*) OVER() AS total_count FROM product_data order by id limit $1 offset $2',
+      'select *, count(*) OVER() AS total_count from product_data order by id limit $1 offset $2',
       [20, offset]
     );
 
