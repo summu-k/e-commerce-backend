@@ -43,7 +43,15 @@ app.get('/products/search/', (req, res) => __awaiter(void 0, void 0, void 0, fun
             brandQuery = `brand='${brand}'`;
         }
         if (priceQuery || brandQuery) {
-            query += `${brandQuery} ${priceQuery}`;
+            if (priceQuery && !brandQuery) {
+                query += `${priceQuery}`;
+            }
+            if (brandQuery && !priceQuery) {
+                query += `${brandQuery}`;
+            }
+            if (brandQuery && priceQuery) {
+                query += `${brandQuery} and ${priceQuery}`;
+            }
             productQuery += ` where ${query}`;
         }
         // const products = await pool.query(
@@ -52,14 +60,13 @@ app.get('/products/search/', (req, res) => __awaiter(void 0, void 0, void 0, fun
         // );
         console.log('productQuery fin ');
         console.log(productQuery);
-        console.log('limit offset ');
-        console.log(limit, offset);
+        console.log(`${productQuery} limit $1 offset $2`);
         const products = yield pool.query(`${productQuery} limit $1 offset $2`, [
             limit,
             offset,
         ]);
         resultObject.info = {
-            count: products.rows[0].total_count,
+            count: products.rows.length ? products.rows[0].total_count : 0,
         };
         resultObject.results = products.rows;
         res.json(resultObject);

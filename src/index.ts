@@ -47,14 +47,17 @@ app.get('/products/search/', async (req, res) => {
     }
 
     if (priceQuery || brandQuery) {
-      query += `${brandQuery} ${priceQuery}`;
+      if (priceQuery && !brandQuery) {
+        query += `${priceQuery}`;
+      }
+      if (brandQuery && !priceQuery) {
+        query += `${brandQuery}`;
+      }
+      if (brandQuery && priceQuery) {
+        query += `${brandQuery} and ${priceQuery}`;
+      }
       productQuery += ` where ${query}`;
     }
-
-    // const products = await pool.query(
-    //   'select *, count(*) OVER() AS total_count from product_data WHERE brand=$1 limit $2 offset $3',
-    //   [brand, limit, offset]
-    // );
 
     const products = await pool.query(`${productQuery} limit $1 offset $2`, [
       limit,
@@ -62,7 +65,7 @@ app.get('/products/search/', async (req, res) => {
     ]);
 
     resultObject.info = {
-      count: products.rows[0].total_count,
+      count: products.rows.length ? products.rows[0].total_count : 0,
     };
     resultObject.results = products.rows;
     res.json(resultObject);
