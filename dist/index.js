@@ -19,12 +19,55 @@ const pool = require('./db');
 const PORT = process.env.PORT || 3005;
 //middleware
 const corsOptions = {
-    origin: 'http://localhost:3000',
+    origin: process.env.NODE_ENV !== 'production'
+        ? 'http://localhost:3000'
+        : 'https://e-commerce-backend-express.herokuapp.com',
     credentials: true,
     optionSuccessStatus: 200,
 };
 app.use(cors_1.default(corsOptions));
 app.use(express_1.default.json());
+app.get('/products/search/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    let resultObject = { info: {}, results: [] };
+    try {
+        const { brand, priceRange, offset, limit } = req.query;
+        let priceQuery = '';
+        let brandQuery = '';
+        let query = '';
+        let productQuery = 'select *, count(*) OVER() AS total_count from product_data';
+        if (priceRange && typeof priceRange === 'string') {
+            const price = priceRange.split('-');
+            priceQuery = `sale_price between ${price[0]} and ${price[1]}`;
+        }
+        if (brand && typeof brand === 'string') {
+            brandQuery = `brand='${brand}'`;
+        }
+        if (priceQuery || brandQuery) {
+            query += `${brandQuery} ${priceQuery}`;
+            productQuery += ` where ${query}`;
+        }
+        // const products = await pool.query(
+        //   'select *, count(*) OVER() AS total_count from product_data WHERE brand=$1 limit $2 offset $3',
+        //   [brand, limit, offset]
+        // );
+        console.log('productQuery fin ');
+        console.log(productQuery);
+        console.log('limit offset ');
+        console.log(limit, offset);
+        const products = yield pool.query(`${productQuery} limit $1 offset $2`, [
+            limit,
+            offset,
+        ]);
+        resultObject.info = {
+            count: products.rows[0].total_count,
+        };
+        resultObject.results = products.rows;
+        res.json(resultObject);
+    }
+    catch (error) {
+        console.error(error);
+    }
+}));
 app.get('/products/brands/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let resultObject = { info: {}, results: [] };
     try {
