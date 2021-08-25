@@ -54,13 +54,6 @@ app.get('/products/search/', (req, res) => __awaiter(void 0, void 0, void 0, fun
             }
             productQuery += ` where ${query}`;
         }
-        // const products = await pool.query(
-        //   'select *, count(*) OVER() AS total_count from product_data WHERE brand=$1 limit $2 offset $3',
-        //   [brand, limit, offset]
-        // );
-        console.log('productQuery fin ');
-        console.log(productQuery);
-        console.log(`${productQuery} limit $1 offset $2`);
         const products = yield pool.query(`${productQuery} limit $1 offset $2`, [
             limit,
             offset,
