@@ -181,26 +181,6 @@ function elasticBulk(rows) {
                 images: doc.images,
             },
         ]);
-        console.log('body fin ');
-        console.log(body);
         yield elasticClient.bulk({ body: body, refresh: true });
-        // await elasticClient.index({
-        //   index: 'product_data',
-        //   body: {
-        //     product_name: "Women's adidas Sport Inspired Questar Ride Shoes",
-        //     product_id: 'B44832',
-        //     brand: 'CORE / NEO',
-        //     description:
-        //       "Inspired by modern tech runners, these women's shoes step out with unexpected style. They're built with a breathable knit upper, while the heel offers the extra support of an Achilles-hugging design. The cushioned midsole provides a soft landing with every stride.",
-        //     images: [
-        //       'https://content.adidas.co.in/static/Product-B44832/Women_CORE_RUNNING_SHOES_LOW_B44832_1.jpg',
-        //       'https://content.adidas.co.in/static/Product-B44832/Women_CORE_RUNNING_SHOES_LOW_B44832_2.jpg',
-        //       'https://content.adidas.co.in/static/Product-B44832/Women_CORE_RUNNING_SHOES_LOW_B44832_3.jpg',
-        //       'https://content.adidas.co.in/static/Product-B44832/Women_CORE_RUNNING_SHOES_LOW_B44832_4.jpg',
-        //       'https://content.adidas.co.in/static/Product-B44832/Women_CORE_RUNNING_SHOES_LOW_B44832_5.jpg',
-        //       'https://content.adidas.co.in/static/Product-B44832/Women_CORE_RUNNING_SHOES_LOW_B44832_6.jpg',
-        //     ],
-        //   },
-        // });
     });
 }
