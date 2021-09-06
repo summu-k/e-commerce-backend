@@ -6,6 +6,7 @@ import cors from 'cors';
 const pool = require('./db');
 const PORT = process.env.PORT || 3005;
 import { Client } from '@elastic/elasticsearch';
+import { sequelize } from './database';
 const elasticClient = new Client({ node: 'http://localhost:9200' });
 
 //middleware
@@ -19,6 +20,15 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// const db = require('./models');
+// db.sequelize.sync();
+
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log('Drop and re-sync db.');
+// });
+
+require('./routes/users.routes')(app);
 
 app.get('/products/search/', async (req, res) => {
   let resultObject: responseProps = { info: {}, results: [] };
@@ -123,10 +133,6 @@ app.get('/products', async (req, res) => {
       prev = `/products?page=${+page - 1}`;
     }
 
-    if (getAllProducts.rows.length) {
-      elasticBulk(getAllProducts.rows).catch(console.log);
-    }
-
     resultObject.info = {
       count: getAllProducts.rows[0].total_count,
       page: Math.ceil(getAllProducts.rows[0].total_count / 20),
@@ -183,6 +189,19 @@ app.put('/products/:id', async (req: requestProps, res) => {
 
 app.listen(PORT, () => {
   console.log(`server running on ${PORT} `);
+  sequelize
+    .authenticate()
+    .then(async () => {
+      console.log('database connected');
+      // try {
+      //   await sequelize.sync({ force: true });
+      // } catch (error) {
+      //   console.log(error.message);
+      // }
+    })
+    .catch((e: any) => {
+      console.log(e.message);
+    });
 });
 
 //GET api get all products
@@ -213,5 +232,5 @@ async function elasticBulk(rows: ProductMapProps[]) {
       images: doc.images,
     },
   ]);
-  await elasticClient.bulk({ body: body, refresh: true }); 
+  await elasticClient.bulk({ body: body, refresh: true });
 }

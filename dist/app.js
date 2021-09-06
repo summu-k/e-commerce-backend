@@ -18,6 +18,7 @@ const cors_1 = __importDefault(require("cors"));
 const pool = require('./db');
 const PORT = process.env.PORT || 3005;
 const elasticsearch_1 = require("@elastic/elasticsearch");
+const database_1 = require("./database");
 const elasticClient = new elasticsearch_1.Client({ node: 'http://localhost:9200' });
 //middleware
 const corsOptions = {
@@ -29,6 +30,12 @@ const corsOptions = {
 };
 app.use(cors_1.default(corsOptions));
 app.use(express_1.default.json());
+// const db = require('./models');
+// db.sequelize.sync();
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log('Drop and re-sync db.');
+// });
+require('./routes/users.routes')(app);
 app.get('/products/search/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let resultObject = { info: {}, results: [] };
     try {
@@ -154,6 +161,19 @@ app.put('/products/:id', (req, res) => __awaiter(void 0, void 0, void 0, functio
 }));
 app.listen(PORT, () => {
     console.log(`server running on ${PORT} `);
+    database_1.sequelize
+        .authenticate()
+        .then(() => __awaiter(void 0, void 0, void 0, function* () {
+        console.log('database connected');
+        // try {
+        //   await sequelize.sync({ force: true });
+        // } catch (error) {
+        //   console.log(error.message);
+        // }
+    }))
+        .catch((e) => {
+        console.log(e.message);
+    });
 });
 //GET api get all products
 app.get('/populateIndex', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

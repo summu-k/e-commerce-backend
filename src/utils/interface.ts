@@ -26,3 +26,11 @@ export interface responseProps {
   };
   results: Array<any>;
 }
+
+export interface userProps {
+  id?: number;
+  name: string;
+  email: string;
+  password: string;
+  is_admin: boolean;
+}
