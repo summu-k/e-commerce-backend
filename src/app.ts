@@ -2,6 +2,8 @@ import express from 'express';
 import { ProductMapProps } from './utils/interface';
 import { responseProps } from './utils/interface';
 const app = express();
+const fileUpload = require('express-fileupload');
+import { Request, Response } from 'express';
 import cors from 'cors';
 const pool = require('./db');
 const PORT = process.env.PORT || 3005;
@@ -20,6 +22,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(
+  fileUpload({
+    useTempFiles: true,
+  })
+);
 
 // const db = require('./models');
 // db.sequelize.sync();
@@ -29,6 +36,7 @@ app.use(express.json());
 // });
 
 require('./routes/users.routes')(app);
+require('./routes/products.routes')(app);
 
 app.get('/products/search/', async (req, res) => {
   let resultObject: responseProps = { info: {}, results: [] };
@@ -166,20 +174,24 @@ interface requestProps {
     id: number;
   };
   body: {
-    image_url: string;
-    description: string;
-    title: string;
-    price: number;
+    images: string;
+    description?: string;
+    product_name: string;
+    brand: string;
+    sale_price: number;
+    discount: number;
+    rating: number;
   };
 }
 
 app.put('/products/:id', async (req: requestProps, res) => {
   try {
     const { id } = req.params;
-    const { image_url, description, title, price } = req.body;
+    const { images, product_name, brand, sale_price, discount, rating } =
+      req.body;
     await pool.query(
-      'UPDATE products set image_url=$1,description=$2,title=$3,price=$4 WHERE id=$5',
-      [image_url, description, title, price, id]
+      'UPDATE product_data set images=jsonb_set(images,$1),product_name=$2,brand=$3,sale_price=$4,discount=$5,rating=$6 WHERE id=$7',
+      [[images], product_name, brand, sale_price, discount, rating, id]
     );
     res.json('Record was updated successfully');
   } catch (error) {
@@ -219,6 +231,14 @@ app.get('/populateIndex', async (req, res) => {
   } catch (error) {
     console.error(error);
   }
+});
+
+app.post('/uploadImage', async (req, res) => {
+  console.log('req.body ');
+  console.log(req.body);
+  const file = req.files;
+  console.log('file real ');
+  console.log(file);
 });
 
 async function elasticBulk(rows: ProductMapProps[]) {

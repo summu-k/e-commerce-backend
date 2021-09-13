@@ -38,7 +38,7 @@ exports.create = (req: Request, res: Response) => {
 // Find a single User with an email
 exports.findOne = async (req: Request, res: Response) => {
   const email = req.body.email;
-  const user: any = await Users.findOne({ where: { email: email } });
+  const user: any = await Users.findOne({ where: { email } });
 
   if (user && bcrypt.compareSync(req.body.password, user.password)) {
     const token = signToken(user);
@@ -52,7 +52,6 @@ exports.findOne = async (req: Request, res: Response) => {
     res.status(401).send({ message: 'Invalid user or password' });
   }
 };
-
 
 exports.getAll = async (req: Request, res: Response) => {
   const email = req.body.email;
@@ -70,8 +69,6 @@ exports.getAll = async (req: Request, res: Response) => {
     res.status(401).send({ message: 'Invalid user or password' });
   }
 };
-
-
 
 exports.seed = async (req: Request, res: Response) => {
   try {

@@ -3,9 +3,10 @@ module.exports = (app) => {
     // const tutorials = require('../controllers/tutorial.controller.js');
     const users = require('../controllers/users.controller');
     var router = require('express').Router();
-    // Create a new Tutorial
+    // user routes
     router.post('/', users.create);
     router.post('/authenticate', users.findOne);
+    router.post('/products', users.getAll);
     router.post('/register', users.create);
     router.post('/seed', users.seed);
     // // Retrieve all Tutorials

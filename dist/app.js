@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const app = express_1.default();
+const fileUpload = require('express-fileupload');
 const cors_1 = __importDefault(require("cors"));
 const pool = require('./db');
 const PORT = process.env.PORT || 3005;
@@ -30,12 +31,16 @@ const corsOptions = {
 };
 app.use(cors_1.default(corsOptions));
 app.use(express_1.default.json());
+app.use(fileUpload({
+    useTempFiles: true,
+}));
 // const db = require('./models');
 // db.sequelize.sync();
 // db.sequelize.sync({ force: true }).then(() => {
 //   console.log('Drop and re-sync db.');
 // });
 require('./routes/users.routes')(app);
+require('./routes/products.routes')(app);
 app.get('/products/search/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let resultObject = { info: {}, results: [] };
     try {
@@ -121,9 +126,6 @@ app.get('/products', (req, res) => __awaiter(void 0, void 0, void 0, function* (
             next = `/products?page=${+page + 1}`;
             prev = `/products?page=${+page - 1}`;
         }
-        if (getAllProducts.rows.length) {
-            elasticBulk(getAllProducts.rows).catch(console.log);
-        }
         resultObject.info = {
             count: getAllProducts.rows[0].total_count,
             page: Math.ceil(getAllProducts.rows[0].total_count / 20),
@@ -151,8 +153,8 @@ app.post('/products', (req, res) => __awaiter(void 0, void 0, void 0, function* 
 app.put('/products/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const { image_url, description, title, price } = req.body;
-        yield pool.query('UPDATE products set image_url=$1,description=$2,title=$3,price=$4 WHERE id=$5', [image_url, description, title, price, id]);
+        const { images, product_name, brand, sale_price, discount, rating } = req.body;
+        yield pool.query('UPDATE product_data set images=jsonb_set(images,$1),product_name=$2,brand=$3,sale_price=$4,discount=$5,rating=$6 WHERE id=$7', [[images], product_name, brand, sale_price, discount, rating, id]);
         res.json('Record was updated successfully');
     }
     catch (error) {
@@ -188,6 +190,13 @@ app.get('/populateIndex', (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (error) {
         console.error(error);
     }
+}));
+app.post('/uploadImage', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('req.body ');
+    console.log(req.body);
+    const file = req.files;
+    console.log('file real ');
+    console.log(file);
 }));
 function elasticBulk(rows) {
     return __awaiter(this, void 0, void 0, function* () {

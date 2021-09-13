@@ -4,7 +4,7 @@ module.exports = (app: { use: (arg0: string, arg1: any) => void }) => {
 
   var router = require('express').Router();
 
-  // Create a new Tutorial
+  // user routes
   router.post('/', users.create);
 
   router.post('/authenticate', users.findOne);

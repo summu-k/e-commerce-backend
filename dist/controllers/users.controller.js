@@ -46,6 +46,22 @@ exports.create = (req, res) => {
 // Find a single User with an email
 exports.findOne = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const email = req.body.email;
+    const user = yield users_model_1.default.findOne({ where: { email } });
+    if (user && bcryptjs_1.default.compareSync(req.body.password, user.password)) {
+        const token = auth_1.signToken(user);
+        res.send({
+            token,
+            name: user.name,
+            email: user.email,
+            is_admin: user.is_admin,
+        });
+    }
+    else {
+        res.status(401).send({ message: 'Invalid user or password' });
+    }
+});
+exports.getAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.body.email;
     const user = yield users_model_1.default.findOne({ where: { email: email } });
     if (user && bcryptjs_1.default.compareSync(req.body.password, user.password)) {
         const token = auth_1.signToken(user);
